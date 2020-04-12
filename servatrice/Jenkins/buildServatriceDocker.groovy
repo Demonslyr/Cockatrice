@@ -27,10 +27,10 @@ node {
     }
     stage('deploy'){
         withCredentials([usernamePassword(usernameVariable: "servatriceUser",passwordVariable: "servatricePass", credentialsId: servatriceCredId)]){
-            def secretout = sh(returnStdout: true, script: "kubectl create secret -n fun generic servatrice-db --from-literal=servatrice-db-string='mysql://${servatriceUser}:${servatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -f -")
+            def secretout = sh(returnStdout: true, script: "kubectl create secret -n servatrice generic servatrice-db --from-literal=servatrice-db-string='mysql://${servatriceUser}:${servatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -n servatrice -f -")
             println secretout
         }
-        def deployout = sh(returnStdout: true, script: "export IMAGE_VERSION=${imageVersion} && envsubst < ${k8sDeployYamlPath} | kubectl apply -f -")
+        def deployout = sh(returnStdout: true, script: "export IMAGE_VERSION=${imageVersion} && envsubst < ${k8sDeployYamlPath} | kubectl apply -n servatrice -f -")
         println deployout        
     }                
 }
