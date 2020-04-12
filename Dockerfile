@@ -1,10 +1,8 @@
-FROM ubuntu:bionic
-MAINTAINER Zach Halpern <zahalpern+github@gmail.com>
-
+FROM debian:buster-slim as base
+FROM base as build
 RUN apt-get update && apt-get install -y\
   build-essential\
   cmake\
-  git\
   libprotobuf-dev\
   libqt5sql5-mysql\
   libmysqlclient-dev\
@@ -23,9 +21,12 @@ RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=
   make &&\
   make install
 
-WORKDIR /home/servatrice
+FROM base as final
+COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /usr/local/share/icons /usr/local/share/icons
+COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
 
-EXPOSE 4747
+WORKDIR /home/servatrice
 
 ENTRYPOINT [ "servatrice", "--log-to-console" ]
 
