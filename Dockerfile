@@ -22,6 +22,7 @@ RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=
   make install
 
 FROM base as final
+RUN apt-get update && apt-get install -y libqt5websockets5
 COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/share/icons /usr/local/share/icons
 COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
