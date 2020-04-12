@@ -19,8 +19,8 @@ spec:
         - name: ASPNETCORE_ENVIRONMENT
           valueFrom:
             secretKeyRef:
-              key: key-here
-              name: secret-name
+              key: servatrice-db-string
+              name: servatrice-db
       imagePullSecrets:
       - name: as-regcred
 ---
