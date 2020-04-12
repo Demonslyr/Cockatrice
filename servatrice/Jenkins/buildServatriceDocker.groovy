@@ -7,7 +7,7 @@ node {
         dockerCredId = "AtriarchDockerID"
         servatriceCredId = "CockatriceDBId"
         dockerfilePathFromRoot = "./Dockerfile"// this is the path from the base directory
-        k8sDeployYamlPath = "./servatrice/service.yaml"
+        k8sDeployYamlPath = "./servatrice/servatrice.yaml"
         k8sDeployName = ""
         imageVersion = "v1.0.${env.BUILD_NUMBER}"
     }
