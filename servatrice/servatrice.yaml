@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: servatrice-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: servatrice
+  template:
+    metadata:
+      labels:
+        app: servatrice
+    spec:
+      containers:
+      - name: servatrice
+        image: atriarchsystems/servatrice:${IMAGE_VERSION}
+      imagePullSecrets:
+      - name: as-regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: servatrice-service
+spec:
+  ports:
+  - name: http
+    targetPort: 4747
+    port: 4747
+  selector:
+    app: servatrice
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: servatrice-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: servatrice.drinkpoint.me
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: servatrice-service
+          servicePort: http
