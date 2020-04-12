@@ -26,8 +26,8 @@ node {
         }
     }
     stage('deploy'){
-        withCredentials([usernamePassword(usernameVariable: "cockatriceUser",passwordVariable: "cockatricePass", credentialsId: cockatriceCredId)]){
-            def secretout = sh(returnStdout: true, script: "kubectl create secret -n fun generic production-tls --from-literal=cockatrice-db-string='mysql://${cockatriceUser}:${cockatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -f -
+        withCredentials([usernamePassword(usernameVariable: "servatriceUser",passwordVariable: "servatricePass", credentialsId: servatriceCredId)]){
+            def secretout = sh(returnStdout: true, script: "kubectl create secret -n fun generic servatrice-db --from-literal=servatrice-db-string='mysql://${servatriceUser}:${servatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -f -
             println secretout
         }
         def deployout = sh(returnStdout: true, script: "export IMAGE_VERSION=${imageVersion} && envsubst < ${k8sDeployYamlPath} | kubectl apply -f -")
