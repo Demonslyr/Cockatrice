@@ -15,6 +15,12 @@ spec:
       containers:
       - name: servatrice
         image: atriarchsystems/servatrice:${IMAGE_VERSION}
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          valueFrom:
+            secretKeyRef:
+              key: key-here
+              name: secret-name
       imagePullSecrets:
       - name: as-regcred
 ---
