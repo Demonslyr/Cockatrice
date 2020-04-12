@@ -1,4 +1,4 @@
-FROM debian:buster-slim as base
+FROM ubuntu:bionic as base
 FROM base as build
 RUN apt-get update && apt-get install -y\
   build-essential\
