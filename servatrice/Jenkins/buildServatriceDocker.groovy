@@ -5,6 +5,7 @@ node {
         appName = "servatrice"
         dockerRepo = "atriarchsystems"
         dockerCredId = "AtriarchDockerID"
+        cockatriceCredId = "CockatriceDBId"
         dockerfilePathFromRoot = "./Dockerfile"// this is the path from the base directory
         k8sDeployYamlPath = "./service.yaml"
         k8sDeployName = ""
@@ -25,8 +26,10 @@ node {
         }
     }
     stage('deploy'){
-        def secretout = sh(returnStdout: true, script: "kubectl create secret generic production-tls --from-literal=cockatrice-db-string='mysql://${cockatriceUser}:${cockatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -f -
-        println secretout                                   
+        withCredentials([usernamePassword(usernameVariable: "cockatriceUser",passwordVariable: "cockatricePass", credentialsId: cockatriceCredId)]){
+            def secretout = sh(returnStdout: true, script: "kubectl create secret generic production-tls --from-literal=cockatrice-db-string='mysql://${cockatriceUser}:${cockatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -f -
+            println secretout
+        }
         def deployout = sh(returnStdout: true, script: "export IMAGE_VERSION=${imageVersion} && envsubst < ${k8sDeployYamlPath} | kubectl apply -f -")
         println deployout        
     }                
