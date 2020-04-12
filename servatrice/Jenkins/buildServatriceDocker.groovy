@@ -11,7 +11,7 @@ node {
         imageVersion = "v1.0.${env.BUILD_NUMBER}"
     }
     stage('build'){
-       def buildout = sh(returnStdout: true, script: "docker build -t ${appName} -f ${dockerfilePathFromRoot} ./src")
+       def buildout = sh(returnStdout: true, script: "docker build -t ${appName} -f ${dockerfilePathFromRoot} .")
        println buildout
     }
     stage('push'){
