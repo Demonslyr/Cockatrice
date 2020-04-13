@@ -29,6 +29,7 @@ RUN apt-get update && apt-get install -y \
 COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/share/icons /usr/local/share/icons
 COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
+COPY ./servatrice/servatrice.ini /usr/local/share/servatrice/servatrice.ini
 
 WORKDIR /home/servatrice
 
