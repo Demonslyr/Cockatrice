@@ -1,6 +1,7 @@
 FROM ubuntu:bionic as base
 RUN apt-get update && apt-get install -y --no-install-recommends\
-  libqt5sql5-mysql
+  libqt5sql5-mysql\
+  libmysqlclient-dev
 FROM base as build
 RUN apt-get install -y --no-install-recommends\
   build-essential\
