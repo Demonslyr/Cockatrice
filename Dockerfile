@@ -1,11 +1,11 @@
-FROM ubuntu:bionic as base
-RUN apt-get update && apt-get install -y --no-install-recommends\
-  libqt5sql5-mysql
-FROM base as build
-RUN apt-get install -y --no-install-recommends\
+FROM ubuntu:bionic
+
+RUN apt-get update && apt-get install -y\
   build-essential\
   cmake\
+  git\
   libprotobuf-dev\
+  libqt5sql5-mysql\
   libmysqlclient-dev\
   libqt5websockets5-dev\
   protobuf-compiler\
@@ -21,19 +21,7 @@ WORKDIR build
 RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=0 &&\
   make &&\
   make install
-
-FROM base as final
-RUN apt-get install -y --no-install-recommends \
-  libqt5websockets5\
-  libprotobuf10 &&\
-  adduser servatrice
-COPY --from=build /usr/local/bin /usr/local/bin
-COPY --from=build /usr/local/share/icons /usr/local/share/icons
-COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
 COPY ./servatrice/servatrice.ini /usr/local/share/servatrice/servatrice.ini
-RUN whoami
-USER servatrice
-RUN whoami
 WORKDIR /home/servatrice
 
 ENTRYPOINT [ "servatrice", "--log-to-console", "--config=/usr/local/share/servatrice/servatrice.ini"]
