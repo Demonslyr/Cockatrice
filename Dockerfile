@@ -1,18 +1,19 @@
 FROM ubuntu:bionic as base
 RUN apt-get update && apt-get install -y --no-install-recommends\
-  libqt5sql5-mysql\
+  libqt5sql5-mysql
+FROM base as build
+RUN apt-get install -y --no-install-recommends\
+  build-essential\
+  cmake\
   libprotobuf-dev\
-  libqt5websockets5-dev\
   libmysqlclient-dev\
-  protobuf-compiler\  
+  libqt5websockets5-dev\
+  protobuf-compiler\
   qt5-default\
   qtbase5-dev\
   qttools5-dev-tools\
   qttools5-dev
-FROM base as build
-RUN apt-get install -y --no-install-recommends\
-  build-essential\
-  cmake
+
 COPY . /home/servatrice/code/
 WORKDIR /home/servatrice/code
 
@@ -30,10 +31,9 @@ COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/share/icons /usr/local/share/icons
 COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
 COPY ./servatrice/servatrice.ini /usr/local/share/servatrice/servatrice.ini
-#RUN whoami
-#USER servatrice
-#RUN whoami
+RUN whoami
+USER servatrice
+RUN whoami
 WORKDIR /home/servatrice
 
 ENTRYPOINT [ "servatrice", "--log-to-console", "--config=/usr/local/share/servatrice/servatrice.ini"]
-
