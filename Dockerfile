@@ -36,5 +36,5 @@ USER servatrice
 RUN whoami
 WORKDIR /home/servatrice
 
-ENTRYPOINT [ "servatrice", "--log-to-console" ]
+ENTRYPOINT [ "servatrice", "--log-to-console", "--config /usr/local/share/servatrice/servatrice.ini"]
 
