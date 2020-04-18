@@ -1,12 +1,7 @@
 FROM ubuntu:bionic as base
 RUN apt-get update && apt-get install -y --no-install-recommends\
-  libqt5sql5-mysql
-FROM base as build
-RUN apt-get install -y --no-install-recommends\
-  build-essential\
-  cmake\
+  libqt5sql5-mysql\
   libprotobuf-dev\
-  libmysqlclient-dev\
   libqt5websockets5-dev\
   libmysqlclient-dev\
   protobuf-compiler\  
@@ -14,7 +9,10 @@ RUN apt-get install -y --no-install-recommends\
   qtbase5-dev\
   qttools5-dev-tools\
   qttools5-dev
-
+FROM base as build
+RUN apt-get install -y --no-install-recommends\
+  build-essential\
+  cmake
 COPY . /home/servatrice/code/
 WORKDIR /home/servatrice/code
 
