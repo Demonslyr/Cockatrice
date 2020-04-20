@@ -12,6 +12,8 @@ node {
         imageVersion = "v1.0.${env.BUILD_NUMBER}"
     }
     stage('build'){
+       //def configReplaceOut = sh(returnStdout: true, script: "export DATABASE_USER=${databaseUser} && export DATABASE_PASSWORD=${databasePass} && export DATABASE_URL=${databaseUrl} && envsubst < ${servatriceIniPath}")
+       //println configReplaceOut
        def buildout = sh(returnStdout: true, script: "docker build -t ${appName} -f ${dockerfilePathFromRoot} .")
        println buildout
     }
