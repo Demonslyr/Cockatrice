@@ -12,10 +12,12 @@ node {
         imageVersion = "v1.0.${env.BUILD_NUMBER}"
     }
     stage('build'){
-       //def configReplaceOut = sh(returnStdout: true, script: "export DATABASE_USER=${databaseUser} && export DATABASE_PASSWORD=${databasePass} && export DATABASE_URL=${databaseUrl} && envsubst < ${servatriceIniPath}")
-       //println configReplaceOut
-       def buildout = sh(returnStdout: true, script: "docker build -t ${appName} -f ${dockerfilePathFromRoot} .")
-       println buildout
+        withCredentials([usernamePassword(usernameVariable: "servatriceUser",passwordVariable: "servatricePass", credentialsId: servatriceCredId)]){
+            def secretout = sh(returnStdout: true, script: "kubectl create secret -n servatrice generic servatrice-db --from-literal=servatrice-db-string='mysql://${servatriceUser}:${servatricePass}@servatrice-db-mysql.fun.cluster.local' --dry-run -o yaml | kubectl apply -n servatrice -f -")
+            println secretout
+            def buildout = sh(returnStdout: true, script: "docker build -t ${appName} --build-arg DATABASE_URL='mysql://${servatriceUser}:${servatricePass}@localhost' -f ${dockerfilePathFromRoot} .")
+            println buildout
+        }
     }
     stage('push'){
         def tagout = sh(returnStdout: true, script: "docker tag ${appName} ${dockerRepo}/${appName}:${imageVersion}")
