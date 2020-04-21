@@ -27,7 +27,7 @@ RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=
 #  libmysqlclient20\
 #  libqt5websockets5\
 #  libprotobuf10 &&\
-#  adduser servatrice
+RUN adduser servatrice
 #COPY --from=build /usr/local/bin /usr/local/bin
 #COPY --from=build /usr/local/share/icons /usr/local/share/icons
 #COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
