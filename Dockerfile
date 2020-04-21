@@ -1,11 +1,13 @@
 FROM ubuntu:bionic as base
-RUN apt-get update && apt-get install -y\
-  libqt5sql5-mysql
+#RUN apt-get update && apt-get install -y\
+  
 FROM base as build
-RUN apt-get install -y\
+RUN apt-get update && apt-get install -y\
   build-essential\
   cmake\
+  git\
   libprotobuf-dev\
+  libqt5sql5-mysql\
   libmysqlclient-dev\
   libqt5websockets5-dev\
   protobuf-compiler\
