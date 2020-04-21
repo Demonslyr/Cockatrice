@@ -27,12 +27,12 @@ RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=
 #  libmysqlclient20\
 #  libqt5websockets5\
 #  libprotobuf10 &&\
-RUN adduser servatrice
+#RUN adduser servatrice
 #COPY --from=build /usr/local/bin /usr/local/bin
 #COPY --from=build /usr/local/share/icons /usr/local/share/icons
 #COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
 COPY ./servatrice/servatrice.ini /usr/local/share/servatrice/servatrice.ini
-USER servatrice
+#USER servatrice
 WORKDIR /home/servatrice
 
 ENTRYPOINT [ "servatrice", "--log-to-console", "--config=/usr/local/share/servatrice/servatrice.ini"]
