@@ -8,12 +8,13 @@ node {
         servatriceCredId = "CockatriceDBId"
         dockerfilePathFromRoot = "./Dockerfile"// this is the path from the base directory
         k8sDeployYamlPath = "./servatrice/servatrice.yaml"
+        servatriceIniPath = "/servatrice/servatrice.ini"
         k8sDeployName = ""
         imageVersion = "v1.0.${env.BUILD_NUMBER}"
     }
     stage('build'){
         withCredentials([usernamePassword(usernameVariable: "servatriceUser",passwordVariable: "servatricePass", credentialsId: servatriceCredId)]){
-            def configReplaceOut = sh(returnStdout: true, script: "export DATABASE_USER=${servatriceUser} && export DATABASE_PASSWORD=${servatricePass} && export DATABASE_URL=localhost && envsubst < ${servatriceIniPath}")
+            def configReplaceOut = sh(returnStdout: true, script: "export DATABASE_USER=${servatriceUser} && export DATABASE_PASSWORD=${servatricePass} && export DATABASE_URL=localhost && envsubst < ${servatriceIniPath} | tee ${servatriceIniPath}")
             println configReplaceOut
             def buildout = sh(returnStdout: true, script: "docker build -t ${appName} -f ${dockerfilePathFromRoot} .")
             println buildout
