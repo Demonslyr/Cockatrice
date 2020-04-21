@@ -31,9 +31,6 @@ COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/share/icons /usr/local/share/icons
 COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
 COPY ./servatrice/servatrice.ini /usr/local/share/servatrice/servatrice.ini
-ARG DATABASE_URL
-ENV DATABASE_URL=$DATABASE_URL
-ENV PORT=3306
 USER servatrice
 WORKDIR /home/servatrice
 
