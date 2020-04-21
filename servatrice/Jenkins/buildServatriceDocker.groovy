@@ -8,7 +8,7 @@ node {
         servatriceCredId = "CockatriceDBId"
         dockerfilePathFromRoot = "./Dockerfile"// this is the path from the base directory
         k8sDeployYamlPath = "./servatrice/servatrice.yaml"
-        servatriceIniPath = "/servatrice/servatrice.ini"
+        servatriceIniPath = "./servatrice/servatrice.ini"
         k8sDeployName = ""
         imageVersion = "v1.0.${env.BUILD_NUMBER}"
     }
