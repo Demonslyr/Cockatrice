@@ -216,7 +216,7 @@ port=587
 username=apikey
 
 ; Password for the username
-password=${SENDGRID_KEY)
+password=${SENDGRID_KEY}
 
 ; Sender email address: the "from" email address
 email=activation@servatrice.atriarch.systems
