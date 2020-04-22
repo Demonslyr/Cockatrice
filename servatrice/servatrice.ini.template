@@ -207,25 +207,25 @@ connection=tcp
 acceptallcerts=false;
 
 ; Hostname or IP addres of the smtp server
-host=localhost
+host=smtp.sendgrid.net
 
 ; Smtp port number of the smtp server. Usual values are 25 or 587 for tcp, 465 for ssl
-port=25
+port=587
 
 ; Username: this typically matches the "from" email address
-username=root@localhost
+username=apikey
 
 ; Password for the username
-password=foobar
+password=${SENDGRID_KEY)
 
 ; Sender email address: the "from" email address
-email=root@localhost
+email=activation@servatrice.atriarch.systems
 
 ; Sender email name
 name="Cockatrice server"
 
 ; Email subject
-subject="Cockatrice server account activation token"
+subject="(DO NOT REPLY) Cockatrice server account activation token"
 
 ; Email body. You can use these tags here: %username %token
 ; They will be substituted with the actual values in the email
