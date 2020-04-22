@@ -27,7 +27,7 @@ FROM base as final
 RUN apt-get install -y\
   libqt5websockets5\
   libprotobuf10 &&\
-RUN adduser servatrice
+  adduser servatrice
 COPY --from=build /usr/local/bin /usr/local/bin
 COPY --from=build /usr/local/share/icons /usr/local/share/icons
 COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
