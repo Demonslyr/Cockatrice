@@ -152,18 +152,18 @@ requireemail=true
 ; Require email activation. Newly registered users will receive an activation token by email,
 ; and will be required to input back this token on cockatrice at the first login to get their
 ; account activated. Default true.
-requireemailactivation=true
+requireemailactivation=false
 
 ; Set this number to the maximum number of accounts any one user can use to create new accounts
 ; using the same email address. 0 = Unlimited number of accounts (default).
-maxaccountsperemail=5
+maxaccountsperemail=2
 
 ; You can prevent users from using certain mail domains for registration.  This setting contains a
 ; comma-seperated list of email provider domains that you would like to prevent users from using
 ; during registration. Comparison's are implicit, so placing an entry such as mail.com will also
 ; prevent users from registering accounts with providers such as gmail.com and hotmail.com
 ; Example: "10minutemail.com,gmail.com"
-;emailproviderblacklist=""
+;emailproviderblacklist="10minutemail.com"
 
 [forgotpassword]
 
@@ -204,7 +204,7 @@ enableinternalsmtpclient=true
 connection=tcp
 
 ; Accept all certificates: in ssl mode, enable this if your server is using an invalid/self signed certificate
-acceptallcerts=true;
+acceptallcerts=false;
 
 ; Hostname or IP addres of the smtp server
 host=smtp.sendgrid.net
