@@ -232,7 +232,7 @@ subject="Cockatrice server account activation token"
 ;
 body="Hi %username, thank our for registering on our Cockatrice server\r\nHere's the activation token you need to supply for activating your account:\r\n\r\n%token\r\n\r\nHappy gaming!"
 
-;[database]
+[database]
 
 ; Database type. Valid values are:
 ; * none: no database;
