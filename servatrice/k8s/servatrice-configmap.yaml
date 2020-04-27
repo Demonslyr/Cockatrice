@@ -1,0 +1,123 @@
+  servatrice.ini: |-
+    [server]
+    name="Atriarch Cockatrice"
+    id=1
+    host=any
+    port=4747
+    number_pools=1
+    websocket_number_pools=1
+    websocket_host=any
+    websocket_port=4748
+    ;web_socket_ip_header="X-Forwarded-For"
+    statusupdate=15000
+    writelog=1
+    logfile=server.log
+    logfilters=""
+    clientkeepalive=1
+    max_player_inactivity_time=30
+    requireclientid=false
+    requiredfeatures=""
+    officialwarnings="Flamming,Spamming,Causing Drama,Abusive Language"
+    idleclienttimeout=3600
+    [authentication]
+    method=sql
+    password=123456
+    regonly=false
+    [users]
+    minnamelength=5
+    maxnamelength=30
+    allowlowercase=true
+    allowuppercase=true
+    allownumerics=true
+    allowedpunctuation=_.-
+    allowpunctuationprefix=false
+    disallowedwords="admin"
+    disallowedregexp=""
+    minpasswordlength = 6
+    [registration]
+    enabled=true
+    requireemail=true
+    requireemailactivation=false
+    maxaccountsperemail=2
+    [forgotpassword]
+    enable=true
+    tokenlife=60
+    subject="Cockatrice forgot password token"
+    body="Hi %username, sorry to hear you forgot your password on our Cockatrice server\r\nHere's the token to use to reset your account password:\r\n\r\n%token\r\n\r\nHappy gaming!"
+    [smtp]
+    enableinternalsmtpclient=true
+    connection=tcp
+    acceptallcerts=false
+    host=smtp.sendgrid.net
+    port=587
+    username=apikey
+    password=${SENDGRID_KEY}
+    email=activation@servatrice.atriarch.systems
+    name="Cockatrice server"
+    subject="(DO NOT REPLY) Cockatrice server account activation token"
+    body="Hi %username, thank our for registering on our Cockatrice server\r\nHere's the activation token you need to supply for activating your account:\r\n\r\n%token\r\n\r\nHappy gaming!"
+    [database]
+    type=mysql
+    prefix=cockatrice
+    hostname=${DATABASE_URL}
+    database=servatrice
+    user=${DATABASE_USER}
+    password=${DATABASE_PASSWORD}
+    [rooms]
+    method=config
+    roomlist\size=1
+    roomlist\1\name="ThunderDome!!!"
+    roomlist\1\description="Play anything here."
+    roomlist\1\permissionlevel=none
+    roomlist\1\privilegelevel=none
+    roomlist\1\autojoin=true
+    roomlist\1\joinmessage="Bring the paaaaaiinnnnnn!."
+    roomlist\1\chathistorysize=150
+    roomlist\1\game_types\size=3
+    roomlist\1\game_types\1\name="EDH"
+    roomlist\1\game_types\2\name="Modern"
+    roomlist\1\game_types\3\name="Grabass"
+    [game]
+    max_game_inactivity_time=600
+    store_replays=true
+    allow_create_as_judge=false
+    [security]
+    enable_max_user_limit=false
+    max_users_total=500
+    max_users_tcp=500
+    max_users_websocket=500
+    max_users_per_address=4
+    trusted_sources="127.0.0.1,::1"
+    message_counting_interval=10
+    max_message_size_per_interval=1000
+    max_message_count_per_interval=10
+    max_games_per_user=5
+    command_counting_interval=10
+    max_command_count_per_interval=20
+    [logging]
+    enablelogquery=false
+    log_user_msg_room=false
+    log_user_msg_game=false
+    log_user_msg_chat=false
+    log_user_msg_isl=false
+    [audit]
+    enable_audit=true
+    enable_registration_audit=true
+    enable_forgotpassword_audit=true
+    [servernetwork]
+    active=0
+    port=14747
+    ssl_cert=ssl_cert.pem
+    ssl_key=ssl_key.pem
+kind: ConfigMap
+metadata:
+  annotations:
+    field.cattle.io/creatorId: u-zlg6l
+  creationTimestamp: "2020-04-27T15:18:42Z"
+  labels:
+    cattle.io/creator: norman
+  name: servatrice-config
+  namespace: servatrice
+  resourceVersion: "18605954"
+  selfLink: /api/v1/namespaces/servatrice/configmaps/servatrice-config
+  uid: 0b940a2c-dce6-49dd-8107-754529919cef
