@@ -111,13 +111,5 @@
     ssl_key=ssl_key.pem
 kind: ConfigMap
 metadata:
-  annotations:
-    field.cattle.io/creatorId: u-zlg6l
-  creationTimestamp: "2020-04-27T15:18:42Z"
-  labels:
-    cattle.io/creator: norman
   name: servatrice-config
   namespace: servatrice
-  resourceVersion: "18605954"
-  selfLink: /api/v1/namespaces/servatrice/configmaps/servatrice-config
-  uid: 0b940a2c-dce6-49dd-8107-754529919cef
