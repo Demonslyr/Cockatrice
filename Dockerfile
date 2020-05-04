@@ -24,7 +24,7 @@ RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=
   make install
 
 FROM base as final
-RUN apt-get install -y\
+RUN apt-get install -y -no-install-recommends\
   libqt5websockets5\
   libprotobuf10 &&\
   adduser servatrice
