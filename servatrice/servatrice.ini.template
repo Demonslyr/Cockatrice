@@ -210,7 +210,7 @@ acceptallcerts=true;
 host=mail.atriarch.systems
 
 ; Smtp port number of the smtp server. Usual values are 25 or 587 for tcp, 465 for ssl
-port=25
+port=587
 
 ; Username: this typically matches the "from" email address
 username=servatrice@mail.atriarch.systems
