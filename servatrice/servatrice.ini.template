@@ -207,7 +207,7 @@ connection=tcp
 acceptallcerts=true;
 
 ; Hostname or IP addres of the smtp server
-host=smtp.sendgrid.net
+host=mail.atriarch.systems
 
 ; Smtp port number of the smtp server. Usual values are 25 or 587 for tcp, 465 for ssl
 port=587
