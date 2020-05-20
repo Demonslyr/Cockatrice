@@ -201,7 +201,7 @@ body="Hi %username, sorry to hear you forgot your password on our Cockatrice ser
 enableinternalsmtpclient=true
 
 ; Connectin type: currently supported method are "tcp" and "ssl"; tls is autodetected if available
-connection=ssl
+connection=tcp
 
 ; Accept all certificates: in ssl mode, enable this if your server is using an invalid/self signed certificate
 acceptallcerts=true;
@@ -210,7 +210,7 @@ acceptallcerts=true;
 host=mail.atriarch.systems
 
 ; Smtp port number of the smtp server. Usual values are 25 or 587 for tcp, 465 for ssl
-port=465
+port=25
 
 ; Username: this typically matches the "from" email address
 username=servatrice@mail.atriarch.systems
