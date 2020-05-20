@@ -201,7 +201,7 @@ body="Hi %username, sorry to hear you forgot your password on our Cockatrice ser
 enableinternalsmtpclient=true
 
 ; Connectin type: currently supported method are "tcp" and "ssl"; tls is autodetected if available
-connection=tcp
+connection=ssl
 
 ; Accept all certificates: in ssl mode, enable this if your server is using an invalid/self signed certificate
 acceptallcerts=true;
