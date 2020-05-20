@@ -204,7 +204,7 @@ enableinternalsmtpclient=true
 connection=tcp
 
 ; Accept all certificates: in ssl mode, enable this if your server is using an invalid/self signed certificate
-acceptallcerts=false;
+acceptallcerts=true;
 
 ; Hostname or IP addres of the smtp server
 host=mail.atriarch.systems
