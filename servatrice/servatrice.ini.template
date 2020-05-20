@@ -213,13 +213,13 @@ host=smtp.sendgrid.net
 port=587
 
 ; Username: this typically matches the "from" email address
-username=apikey
+username=servatrice@mail.atriarch.systems
 
 ; Password for the username
-password=${SENDGRID_KEY}
+password=${ATRIARCH_SMTP_KEY}
 
 ; Sender email address: the "from" email address
-email=activation@servatrice.atriarch.systems
+email=servatrice@mail.atriarch.systems
 
 ; Sender email name
 name="Cockatrice server"
