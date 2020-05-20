@@ -15,8 +15,8 @@ node {
     }
     stage('build'){
         withCredentials([usernamePassword(usernameVariable: "servatriceUser",passwordVariable: "servatricePass", credentialsId: servatriceCredId)]){
-            withCredentials([string(credentialsId: "servatrice_sendgrid_key", variable: "sendgridKey")]){
-                def configReplaceOut = sh(returnStdout: true, script: "export SENDGRID_KEY=${sendgridKey} && export DATABASE_USER=${servatriceUser} && export DATABASE_PASSWORD=${servatricePass} && export DATABASE_URL=192.168.0.193 && envsubst < ${servatriceIniTemplatePath} > ${servatriceIniPath}")
+            withCredentials([string(credentialsId: "servatrice_atriarch_key", variable: "atriarchSmtpKey")]){
+                def configReplaceOut = sh(returnStdout: true, script: "export ATRIARCH_SMTP_KEY=${atriarchSmtpKey} && export DATABASE_USER=${servatriceUser} && export DATABASE_PASSWORD=${servatricePass} && export DATABASE_URL=192.168.0.193 && envsubst < ${servatriceIniTemplatePath} > ${servatriceIniPath}")
             println configReplaceOut
             def buildout = sh(returnStdout: true, script: "docker build -t ${appName} -f ${dockerfilePathFromRoot} .")
             println buildout
