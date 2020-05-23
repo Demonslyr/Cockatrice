@@ -1,12 +1,13 @@
-FROM ubuntu:bionic
+FROM ubuntu:bionic as base
+RUN apt-get update && apt-get install -y --no-install-recommends\
+  libqt5sql5-mysql
 MAINTAINER Zach Halpern <zahalpern+github@gmail.com>
 
-RUN apt-get update && apt-get install -y\
+FROM base as build
+RUN apt-get install -y --no-install-recommends\
   build-essential\
   cmake\
-  git\
   libprotobuf-dev\
-  libqt5sql5-mysql\
   libmysqlclient-dev\
   libqt5websockets5-dev\
   protobuf-compiler\
@@ -23,9 +24,18 @@ RUN cmake .. -DWITH_SERVER=1 -DWITH_CLIENT=0 -DWITH_ORACLE=0 -DWITH_DBCONVERTER=
   make &&\
   make install
 
+FROM base as final
+RUN apt-get install -y --no-install-recommends\
+  libqt5websockets5\
+  libprotobuf10 &&\
+  adduser servatrice
+COPY --from=build /usr/local/bin /usr/local/bin
+COPY --from=build /usr/local/share/icons /usr/local/share/icons
+COPY --from=build /usr/local/share/servatrice /usr/local/share/servatrice
+
+USER servatrice
 WORKDIR /home/servatrice
 
 EXPOSE 4747
 
 ENTRYPOINT [ "servatrice", "--log-to-console" ]
-
