@@ -9,6 +9,7 @@
 #include "deckview.h"
 #include "dlg_creategame.h"
 #include "dlg_load_remote_deck.h"
+#include "dlg_manage_sets.h"
 #include "gamescene.h"
 #include "gameview.h"
 #include "get_pb_extension.h"
@@ -52,7 +53,6 @@
 #include "replay_timeline_widget.h"
 #include "settingscache.h"
 #include "tab_supervisor.h"
-#include "window_sets.h"
 #include "zoneviewwidget.h"
 #include "zoneviewzone.h"
 
@@ -135,7 +135,7 @@ DeckViewContainer::DeckViewContainer(int _playerId, TabGame *parent)
     setLayout(deckViewLayout);
 
     retranslateUi();
-    connect(&settingsCache->shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
+    connect(&SettingsCache::instance().shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
     refreshShortcuts();
 }
 
@@ -166,97 +166,98 @@ void DeckViewContainer::updateSideboardLockButtonText()
 
 void DeckViewContainer::refreshShortcuts()
 {
-    loadLocalButton->setShortcut(settingsCache->shortcuts().getSingleShortcut("DeckViewContainer/loadLocalButton"));
-    loadRemoteButton->setShortcut(settingsCache->shortcuts().getSingleShortcut("DeckViewContainer/loadRemoteButton"));
-    readyStartButton->setShortcut(settingsCache->shortcuts().getSingleShortcut("DeckViewContainer/readyStartButton"));
-    sideboardLockButton->setShortcut(
-        settingsCache->shortcuts().getSingleShortcut("DeckViewContainer/sideboardLockButton"));
+    ShortcutsSettings &shortcuts = SettingsCache::instance().shortcuts();
+    loadLocalButton->setShortcut(shortcuts.getSingleShortcut("DeckViewContainer/loadLocalButton"));
+    loadRemoteButton->setShortcut(shortcuts.getSingleShortcut("DeckViewContainer/loadRemoteButton"));
+    readyStartButton->setShortcut(shortcuts.getSingleShortcut("DeckViewContainer/readyStartButton"));
+    sideboardLockButton->setShortcut(shortcuts.getSingleShortcut("DeckViewContainer/sideboardLockButton"));
 }
 
 void TabGame::refreshShortcuts()
 {
+    ShortcutsSettings &shortcuts = SettingsCache::instance().shortcuts();
     for (int i = 0; i < phaseActions.size(); ++i) {
         QAction *temp = phaseActions.at(i);
         switch (i) {
             case 0:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase0"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase0"));
                 break;
             case 1:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase1"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase1"));
                 break;
             case 2:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase2"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase2"));
                 break;
             case 3:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase3"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase3"));
                 break;
             case 4:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase4"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase4"));
                 break;
             case 5:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase5"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase5"));
                 break;
             case 6:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase6"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase6"));
                 break;
             case 7:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase7"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase7"));
                 break;
             case 8:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase8"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase8"));
                 break;
             case 9:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase9"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase9"));
                 break;
             case 10:
-                temp->setShortcuts(settingsCache->shortcuts().getShortcut("Player/phase10"));
+                temp->setShortcuts(shortcuts.getShortcut("Player/phase10"));
                 break;
             default:;
         }
     }
 
     if (aNextPhase) {
-        aNextPhase->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aNextPhase"));
+        aNextPhase->setShortcuts(shortcuts.getShortcut("Player/aNextPhase"));
     }
     if (aNextPhaseAction) {
-        aNextPhaseAction->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aNextPhaseAction"));
+        aNextPhaseAction->setShortcuts(shortcuts.getShortcut("Player/aNextPhaseAction"));
     }
     if (aNextTurn) {
-        aNextTurn->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aNextTurn"));
+        aNextTurn->setShortcuts(shortcuts.getShortcut("Player/aNextTurn"));
     }
     if (aReverseTurn) {
-        aReverseTurn->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aReverseTurn"));
+        aReverseTurn->setShortcuts(shortcuts.getShortcut("Player/aReverseTurn"));
     }
     if (aRemoveLocalArrows) {
-        aRemoveLocalArrows->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aRemoveLocalArrows"));
+        aRemoveLocalArrows->setShortcuts(shortcuts.getShortcut("Player/aRemoveLocalArrows"));
     }
     if (aRotateViewCW) {
-        aRotateViewCW->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aRotateViewCW"));
+        aRotateViewCW->setShortcuts(shortcuts.getShortcut("Player/aRotateViewCW"));
     }
     if (aRotateViewCCW) {
-        aRotateViewCCW->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aRotateViewCCW"));
+        aRotateViewCCW->setShortcuts(shortcuts.getShortcut("Player/aRotateViewCCW"));
     }
     if (aConcede) {
-        aConcede->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aConcede"));
+        aConcede->setShortcuts(shortcuts.getShortcut("Player/aConcede"));
     }
     if (aLeaveGame) {
-        aLeaveGame->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aLeaveGame"));
+        aLeaveGame->setShortcuts(shortcuts.getShortcut("Player/aLeaveGame"));
     }
     if (aCloseReplay) {
-        aCloseReplay->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aCloseReplay"));
+        aCloseReplay->setShortcuts(shortcuts.getShortcut("Player/aCloseReplay"));
     }
     if (aResetLayout) {
-        aResetLayout->setShortcuts(settingsCache->shortcuts().getShortcut("Player/aResetLayout"));
+        aResetLayout->setShortcuts(shortcuts.getShortcut("Player/aResetLayout"));
     }
     if (aFocusChat) {
-        aFocusChat->setShortcuts(settingsCache->shortcuts().getShortcut("tab_game/aFocusChat"));
+        aFocusChat->setShortcuts(shortcuts.getShortcut("tab_game/aFocusChat"));
     }
 }
 
 void DeckViewContainer::loadLocalDeck()
 {
     QFileDialog dialog(this, tr("Load deck"));
-    dialog.setDirectory(settingsCache->getDeckPath());
+    dialog.setDirectory(SettingsCache::instance().getDeckPath());
     dialog.setNameFilters(DeckLoader::fileNameFilters);
     if (!dialog.exec())
         return;
@@ -394,7 +395,7 @@ TabGame::TabGame(TabSupervisor *_tabSupervisor, GameReplay *_replay)
     createReplayMenuItems();
     createViewMenuItems();
     retranslateUi();
-    connect(&settingsCache->shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
+    connect(&SettingsCache::instance().shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
     refreshShortcuts();
     messageLog->logReplayStarted(gameInfo.game_id());
 
@@ -433,7 +434,7 @@ TabGame::TabGame(TabSupervisor *_tabSupervisor,
     createMenuItems();
     createViewMenuItems();
     retranslateUi();
-    connect(&settingsCache->shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
+    connect(&SettingsCache::instance().shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
     refreshShortcuts();
 
     // append game to rooms game list for others to see
@@ -444,13 +445,13 @@ TabGame::TabGame(TabSupervisor *_tabSupervisor,
     QTimer::singleShot(0, this, SLOT(loadLayout()));
 }
 
-void TabGame::addMentionTag(QString value)
+void TabGame::addMentionTag(const QString &value)
 {
     sayEdit->insert(value + " ");
     sayEdit->setFocus();
 }
 
-void TabGame::linkCardToChat(QString cardName)
+void TabGame::linkCardToChat(const QString &cardName)
 {
     sayEdit->insert("[[" + cardName + "]] ");
     sayEdit->setFocus();
@@ -458,7 +459,7 @@ void TabGame::linkCardToChat(QString cardName)
 
 void TabGame::emitUserEvent()
 {
-    bool globalEvent = !spectator || settingsCache->getSpectatorNotificationsEnabled();
+    bool globalEvent = !spectator || SettingsCache::instance().getSpectatorNotificationsEnabled();
     emit userEvent(globalEvent);
     updatePlayerListDockTitle();
 }
@@ -771,7 +772,8 @@ void TabGame::actRotateViewCCW()
 
 void TabGame::actCompleterChanged()
 {
-    settingsCache->getChatMentionCompleter() ? completer->setCompletionRole(2) : completer->setCompletionRole(1);
+    SettingsCache::instance().getChatMentionCompleter() ? completer->setCompletionRole(2)
+                                                        : completer->setCompletionRole(1);
 }
 
 Player *TabGame::addPlayer(int playerId, const ServerInfo_User &info)
@@ -802,6 +804,25 @@ Player *TabGame::addPlayer(int playerId, const ServerInfo_User &info)
     gameMenu->insertMenu(playersSeparator, newPlayer->getPlayerMenu());
 
     players.insert(playerId, newPlayer);
+
+    if (!spectators.contains(playerId)) {
+
+        // Loop for each player, the idea is to have one assigned zone for each non-spectator player
+        for (int i = 1; i <= players.count(); ++i) {
+            bool aPlayerHasThisZone = false;
+            for (auto &player : players) {
+                if (player->getZoneId() == i) {
+                    aPlayerHasThisZone = true;
+                    break;
+                }
+            }
+            if (!aPlayerHasThisZone) {
+                newPlayer->setZoneId(i);
+                break;
+            }
+        }
+    }
+
     emit playerAdded(newPlayer);
     return newPlayer;
 }
@@ -834,10 +855,8 @@ void TabGame::processGameEventContainer(const GameEventContainer &cont, Abstract
                 case GameEvent::LEAVE:
                     eventSpectatorLeave(event.GetExtension(Event_Leave::ext), playerId, context);
                     break;
-                default: {
-                    qDebug() << "unhandled spectator game event" << eventType;
+                default:
                     break;
-                }
             }
         } else {
             if ((clients.size() > 1) && (playerId != -1))
@@ -1525,28 +1544,29 @@ void TabGame::createViewMenuItems()
 
 void TabGame::loadLayout()
 {
+    LayoutsSettings &layouts = SettingsCache::instance().layouts();
     if (replayDock) {
-        restoreGeometry(settingsCache->layouts().getReplayPlayAreaGeometry());
-        restoreState(settingsCache->layouts().getReplayPlayAreaLayoutState());
+        restoreGeometry(layouts.getReplayPlayAreaGeometry());
+        restoreState(layouts.getReplayPlayAreaLayoutState());
 
-        cardInfoDock->setMinimumSize(settingsCache->layouts().getReplayCardInfoSize());
-        cardInfoDock->setMaximumSize(settingsCache->layouts().getReplayCardInfoSize());
-        messageLayoutDock->setMinimumSize(settingsCache->layouts().getReplayMessageLayoutSize());
-        messageLayoutDock->setMaximumSize(settingsCache->layouts().getReplayMessageLayoutSize());
-        playerListDock->setMinimumSize(settingsCache->layouts().getReplayPlayerListSize());
-        playerListDock->setMaximumSize(settingsCache->layouts().getReplayPlayerListSize());
-        replayDock->setMinimumSize(settingsCache->layouts().getReplayReplaySize());
-        replayDock->setMaximumSize(settingsCache->layouts().getReplayReplaySize());
+        cardInfoDock->setMinimumSize(layouts.getReplayCardInfoSize());
+        cardInfoDock->setMaximumSize(layouts.getReplayCardInfoSize());
+        messageLayoutDock->setMinimumSize(layouts.getReplayMessageLayoutSize());
+        messageLayoutDock->setMaximumSize(layouts.getReplayMessageLayoutSize());
+        playerListDock->setMinimumSize(layouts.getReplayPlayerListSize());
+        playerListDock->setMaximumSize(layouts.getReplayPlayerListSize());
+        replayDock->setMinimumSize(layouts.getReplayReplaySize());
+        replayDock->setMaximumSize(layouts.getReplayReplaySize());
     } else {
-        restoreGeometry(settingsCache->layouts().getGamePlayAreaGeometry());
-        restoreState(settingsCache->layouts().getGamePlayAreaLayoutState());
+        restoreGeometry(layouts.getGamePlayAreaGeometry());
+        restoreState(layouts.getGamePlayAreaLayoutState());
 
-        cardInfoDock->setMinimumSize(settingsCache->layouts().getGameCardInfoSize());
-        cardInfoDock->setMaximumSize(settingsCache->layouts().getGameCardInfoSize());
-        messageLayoutDock->setMinimumSize(settingsCache->layouts().getGameMessageLayoutSize());
-        messageLayoutDock->setMaximumSize(settingsCache->layouts().getGameMessageLayoutSize());
-        playerListDock->setMinimumSize(settingsCache->layouts().getGamePlayerListSize());
-        playerListDock->setMaximumSize(settingsCache->layouts().getGamePlayerListSize());
+        cardInfoDock->setMinimumSize(layouts.getGameCardInfoSize());
+        cardInfoDock->setMaximumSize(layouts.getGameCardInfoSize());
+        messageLayoutDock->setMinimumSize(layouts.getGameMessageLayoutSize());
+        messageLayoutDock->setMaximumSize(layouts.getGameMessageLayoutSize());
+        playerListDock->setMinimumSize(layouts.getGamePlayerListSize());
+        playerListDock->setMaximumSize(layouts.getGamePlayerListSize());
     }
 
     aCardInfoDockVisible->setChecked(cardInfoDock->isVisible());
@@ -1772,7 +1792,7 @@ void TabGame::createMessageDock(bool bReplay)
     if (!bReplay) {
         connect(messageLog, SIGNAL(openMessageDialog(QString, bool)), this, SIGNAL(openMessageDialog(QString, bool)));
         connect(messageLog, SIGNAL(addMentionTag(QString)), this, SLOT(addMentionTag(QString)));
-        connect(settingsCache, SIGNAL(chatMentionCompleterChanged()), this, SLOT(actCompleterChanged()));
+        connect(&SettingsCache::instance(), SIGNAL(chatMentionCompleterChanged()), this, SLOT(actCompleterChanged()));
 
         timeElapsedLabel = new QLabel;
         timeElapsedLabel->setAlignment(Qt::AlignCenter);
@@ -1792,10 +1812,19 @@ void TabGame::createMessageDock(bool bReplay)
         sayEdit->setCompleter(completer);
         actCompleterChanged();
 
-        if (spectator && !gameInfo.spectators_can_chat() && tabSupervisor->getAdminLocked()) {
-            sayLabel->hide();
-            sayEdit->hide();
+        if (spectator) {
+            /* Spectators can only talk if:
+             * (a) the game creator allows it
+             * (b) the spectator is a moderator/administrator
+             * (c) the spectator is a judge
+             */
+            bool isModOrJudge = !tabSupervisor->getAdminLocked() || judge;
+            if (!isModOrJudge && !gameInfo.spectators_can_chat()) {
+                sayLabel->hide();
+                sayEdit->hide();
+            }
         }
+
         connect(tabSupervisor, SIGNAL(adminLockChanged(bool)), this, SLOT(adminLockChanged(bool)));
         connect(sayEdit, SIGNAL(returnPressed()), this, SLOT(actSay()));
 
@@ -1846,19 +1875,20 @@ bool TabGame::eventFilter(QObject *o, QEvent *e)
     }
 
     if (o == this && e->type() == QEvent::Hide) {
+        LayoutsSettings &layouts = SettingsCache::instance().layouts();
         if (replay) {
-            settingsCache->layouts().setReplayPlayAreaState(saveState());
-            settingsCache->layouts().setReplayPlayAreaGeometry(saveGeometry());
-            settingsCache->layouts().setReplayCardInfoSize(cardInfoDock->size());
-            settingsCache->layouts().setReplayMessageLayoutSize(messageLayoutDock->size());
-            settingsCache->layouts().setReplayPlayerListSize(playerListDock->size());
-            settingsCache->layouts().setReplayReplaySize(replayDock->size());
+            layouts.setReplayPlayAreaState(saveState());
+            layouts.setReplayPlayAreaGeometry(saveGeometry());
+            layouts.setReplayCardInfoSize(cardInfoDock->size());
+            layouts.setReplayMessageLayoutSize(messageLayoutDock->size());
+            layouts.setReplayPlayerListSize(playerListDock->size());
+            layouts.setReplayReplaySize(replayDock->size());
         } else {
-            settingsCache->layouts().setGamePlayAreaState(saveState());
-            settingsCache->layouts().setGamePlayAreaGeometry(saveGeometry());
-            settingsCache->layouts().setGameCardInfoSize(cardInfoDock->size());
-            settingsCache->layouts().setGameMessageLayoutSize(messageLayoutDock->size());
-            settingsCache->layouts().setGamePlayerListSize(playerListDock->size());
+            layouts.setGamePlayAreaState(saveState());
+            layouts.setGamePlayAreaGeometry(saveGeometry());
+            layouts.setGameCardInfoSize(cardInfoDock->size());
+            layouts.setGameMessageLayoutSize(messageLayoutDock->size());
+            layouts.setGamePlayerListSize(playerListDock->size());
         }
     }
     return false;

@@ -34,7 +34,7 @@ void TappedOutInterface::queryFinished(QNetworkReply *reply)
          */
         QString deckUrl = reply->rawHeader("Location");
         qDebug() << "Tappedout: good reply, http status" << httpStatus << "location" << deckUrl;
-        QDesktopServices::openUrl("http://tappedout.net" + deckUrl);
+        QDesktopServices::openUrl("https://tappedout.net" + deckUrl);
     } else {
         /*
          * Otherwise, the deck has not been parsed correctly. Error messages can be extracted
@@ -78,7 +78,7 @@ void TappedOutInterface::getAnalyzeRequestData(DeckList *deck, QByteArray *data)
     urlQuery.addQueryItem("mainboard", mainboard.writeToString_Plain(false, true));
     urlQuery.addQueryItem("sideboard", sideboard.writeToString_Plain(false, true));
     params.setQuery(urlQuery);
-    data->append(params.query(QUrl::EncodeReserved));
+    data->append(params.query(QUrl::EncodeReserved).toUtf8());
 }
 
 void TappedOutInterface::analyzeDeck(DeckList *deck)
@@ -86,7 +86,7 @@ void TappedOutInterface::analyzeDeck(DeckList *deck)
     QByteArray data;
     getAnalyzeRequestData(deck, &data);
 
-    QNetworkRequest request(QUrl("http://tappedout.net/mtg-decks/paste/"));
+    QNetworkRequest request(QUrl("https://tappedout.net/mtg-decks/paste/"));
     request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
     manager->post(request, data);

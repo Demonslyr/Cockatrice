@@ -13,6 +13,7 @@
 #include "pb/serverinfo_user.pb.h"
 #include "pixmapgenerator.h"
 #include "settingscache.h"
+#include "tab_account.h"
 #include "tab_admin.h"
 #include "tab_deck_editor.h"
 #include "tab_deck_storage.h"
@@ -22,7 +23,6 @@
 #include "tab_replays.h"
 #include "tab_room.h"
 #include "tab_server.h"
-#include "tab_userlists.h"
 #include "userlist.h"
 
 #include <QApplication>
@@ -515,7 +515,7 @@ void TabSupervisor::tabUserEvent(bool globalEvent)
         tab->setContentsChanged(true);
         setTabIcon(indexOf(tab), QPixmap("theme:icons/tab_changed"));
     }
-    if (globalEvent && settingsCache->getNotificationsEnabled())
+    if (globalEvent && SettingsCache::instance().getNotificationsEnabled())
         QApplication::alert(this);
 }
 
@@ -552,7 +552,7 @@ void TabSupervisor::processUserMessageEvent(const Event_UserMessage &event)
         UserListTWI *twi = tabUserLists->getAllUsersList()->getUsers().value(senderName);
         if (twi) {
             UserLevelFlags userLevel = UserLevelFlags(twi->getUserInfo().user_level());
-            if (settingsCache->getIgnoreUnregisteredUserMessages() &&
+            if (SettingsCache::instance().getIgnoreUnregisteredUserMessages() &&
                 !userLevel.testFlag(ServerInfo_User::IsRegistered))
                 // Flags are additive, so reg/mod/admin are all IsRegistered
                 return;
@@ -596,7 +596,7 @@ void TabSupervisor::processUserJoined(const ServerInfo_User &userInfoJoined)
             setTabIcon(indexOf(tab), QPixmap(avatarPixmap));
         }
 
-        if (settingsCache->getBuddyConnectNotificationsEnabled()) {
+        if (SettingsCache::instance().getBuddyConnectNotificationsEnabled()) {
             QApplication::alert(this);
             this->actShowPopup(tr("Your buddy %1 has signed on!").arg(userName));
         }
@@ -621,6 +621,11 @@ void TabSupervisor::updateCurrent(int index)
         emit setMenu();
 }
 
+/**
+ * Determine if a user is a moderator/administrator
+ * By seeing if they have the admin tab open & unlocked
+ * @return if the admin tab is open & unlocked
+ */
 bool TabSupervisor::getAdminLocked() const
 {
     if (!tabAdmin)

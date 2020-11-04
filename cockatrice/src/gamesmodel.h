@@ -9,6 +9,8 @@
 #include <QList>
 #include <QSet>
 #include <QSortFilterProxyModel>
+#include <QStringList>
+#include <QTime>
 
 class GamesModel : public QAbstractTableModel
 {
@@ -37,7 +39,7 @@ public:
     }
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    const QString getGameCreatedString(const int secs) const;
+    static const QString getGameCreatedString(const int secs);
     const ServerInfo_Game &getGame(int row);
 
     /**
@@ -68,15 +70,25 @@ class GamesProxyModel : public QSortFilterProxyModel
 private:
     bool ownUserIsRegistered;
     const TabSupervisor *tabSupervisor;
+
+    // If adding any additional filters, make sure to update:
+    // - GamesProxyModel()
+    // - resetFilterParameters()
+    // - areFilterParametersSetToDefaults()
+    // - loadFilterParameters()
+    // - saveFilterParameters()
+    // - filterAcceptsRow()
     bool showBuddiesOnlyGames;
     bool hideIgnoredUserGames;
-    bool unavailableGamesVisible;
+    bool showFullGames;
+    bool showGamesThatStarted;
     bool showPasswordProtectedGames;
     QString gameNameFilter, creatorNameFilter;
     QSet<int> gameTypeFilter;
-    int maxPlayersFilterMin, maxPlayersFilterMax;
-
-    static const int DEFAULT_MAX_PLAYERS_MAX = 99;
+    quint32 maxPlayersFilterMin, maxPlayersFilterMax;
+    QTime maxGameAge;
+    bool showOnlyIfSpectatorsCanWatch, showSpectatorPasswordProtected, showOnlyIfSpectatorsCanChat,
+        showOnlyIfSpectatorsCanSeeHands;
 
 public:
     GamesProxyModel(QObject *parent = nullptr, const TabSupervisor *_tabSupervisor = nullptr);
@@ -91,11 +103,16 @@ public:
         return hideIgnoredUserGames;
     }
     void setHideIgnoredUserGames(bool _hideIgnoredUserGames);
-    bool getUnavailableGamesVisible() const
+    bool getShowFullGames() const
     {
-        return unavailableGamesVisible;
+        return showFullGames;
     }
-    void setUnavailableGamesVisible(bool _unavailableGamesVisible);
+    void setShowFullGames(bool _showFullGames);
+    bool getShowGamesThatStarted() const
+    {
+        return showGamesThatStarted;
+    }
+    void setShowGamesThatStarted(bool _showGamesThatStarted);
     bool getShowPasswordProtectedGames() const
     {
         return showPasswordProtectedGames;
@@ -125,8 +142,35 @@ public:
         return maxPlayersFilterMax;
     }
     void setMaxPlayersFilter(int _maxPlayersFilterMin, int _maxPlayersFilterMax);
+    const QTime &getMaxGameAge() const
+    {
+        return maxGameAge;
+    }
+    void setMaxGameAge(const QTime &_maxGameAge);
+    bool getShowOnlyIfSpectatorsCanWatch() const
+    {
+        return showOnlyIfSpectatorsCanWatch;
+    }
+    void setShowOnlyIfSpectatorsCanWatch(bool _showOnlyIfSpectatorsCanWatch);
+    bool getShowSpectatorPasswordProtected() const
+    {
+        return showSpectatorPasswordProtected;
+    }
+    void setShowSpectatorPasswordProtected(bool _showSpectatorPasswordProtected);
+    bool getShowOnlyIfSpectatorsCanChat() const
+    {
+        return showOnlyIfSpectatorsCanChat;
+    }
+    void setShowOnlyIfSpectatorsCanChat(bool _showOnlyIfSpectatorsCanChat);
+    bool getShowOnlyIfSpectatorsCanSeeHands() const
+    {
+        return showOnlyIfSpectatorsCanSeeHands;
+    }
+    void setShowOnlyIfSpectatorsCanSeeHands(bool _showOnlyIfSpectatorsCanSeeHands);
+
     int getNumFilteredGames() const;
     void resetFilterParameters();
+    bool areFilterParametersSetToDefaults() const;
     void loadFilterParameters(const QMap<int, QString> &allGameTypes);
     void saveFilterParameters(const QMap<int, QString> &allGameTypes);
     void refresh();

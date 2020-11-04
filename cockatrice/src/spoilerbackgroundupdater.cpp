@@ -21,7 +21,7 @@
 
 SpoilerBackgroundUpdater::SpoilerBackgroundUpdater(QObject *apParent) : QObject(apParent), cardUpdateProcess(nullptr)
 {
-    isSpoilerDownloadEnabled = settingsCache->getDownloadSpoilersStatus();
+    isSpoilerDownloadEnabled = SettingsCache::instance().getDownloadSpoilersStatus();
     if (isSpoilerDownloadEnabled) {
         // Start the process of checking if we're in spoiler season
         // File exists means we're in spoiler season
@@ -73,7 +73,7 @@ void SpoilerBackgroundUpdater::actDownloadFinishedSpoilersFile()
 
 bool SpoilerBackgroundUpdater::deleteSpoilerFile()
 {
-    QString fileName = settingsCache->getSpoilerCardDatabasePath();
+    QString fileName = SettingsCache::instance().getSpoilerCardDatabasePath();
     QFileInfo fi(fileName);
     QDir fileDir(fi.path());
     QFile file(fileName);
@@ -124,7 +124,7 @@ void SpoilerBackgroundUpdater::actCheckIfSpoilerSeasonEnabled()
 
 bool SpoilerBackgroundUpdater::saveDownloadedFile(QByteArray data)
 {
-    QString fileName = settingsCache->getSpoilerCardDatabasePath();
+    QString fileName = SettingsCache::instance().getSpoilerCardDatabasePath();
     QFileInfo fi(fileName);
     QDir fileDir(fi.path());
 
@@ -167,8 +167,8 @@ bool SpoilerBackgroundUpdater::saveDownloadedFile(QByteArray data)
         QList<QByteArray> lines = data.split('\n');
 
         foreach (QByteArray line, lines) {
-            if (line.contains("created:")) {
-                QString timeStamp = QString(line).replace("created:", "").trimmed();
+            if (line.contains("Created At:")) {
+                QString timeStamp = QString(line).replace("Created At:", "").trimmed();
                 timeStamp.chop(6); // Remove " (UTC)"
 
                 auto utcTime = QLocale().toDateTime(timeStamp, "ddd, MMM dd yyyy, hh:mm:ss");

@@ -25,7 +25,7 @@ TableZone::TableZone(Player *_p, QGraphicsItem *parent)
     : SelectZone(_p, "table", true, false, true, parent), active(false)
 {
     connect(themeManager, SIGNAL(themeChanged()), this, SLOT(updateBg()));
-    connect(settingsCache, SIGNAL(invertVerticalCoordinateChanged()), this, SLOT(reorganizeCards()));
+    connect(&SettingsCache::instance(), SIGNAL(invertVerticalCoordinateChanged()), this, SLOT(reorganizeCards()));
 
     updateBg();
 
@@ -49,18 +49,17 @@ QRectF TableZone::boundingRect() const
 
 bool TableZone::isInverted() const
 {
-    return ((player->getMirrored() && !settingsCache->getInvertVerticalCoordinate()) ||
-            (!player->getMirrored() && settingsCache->getInvertVerticalCoordinate()));
+    return ((player->getMirrored() && !SettingsCache::instance().getInvertVerticalCoordinate()) ||
+            (!player->getMirrored() && SettingsCache::instance().getInvertVerticalCoordinate()));
 }
 
 void TableZone::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
     QBrush brush = themeManager->getTableBgBrush();
 
-    // If the player is other than Player 1
-    if (player->getId() > 0) {
-        // The player's id starts with 0 so in order to get the correct image we need to add 1
-        brush = themeManager->getExtraTableBgBrush(QString::number(player->getId() + 1));
+    if (player->getZoneId() > 0) {
+        // If the extra image is not found, load the default one
+        brush = themeManager->getExtraTableBgBrush(QString::number(player->getZoneId()), brush);
     }
     painter->fillRect(boundingRect(), brush);
 

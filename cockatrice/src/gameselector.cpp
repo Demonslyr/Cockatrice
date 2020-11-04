@@ -8,9 +8,9 @@
 #include "pb/room_commands.pb.h"
 #include "pb/serverinfo_game.pb.h"
 #include "pending_command.h"
+#include "tab_account.h"
 #include "tab_room.h"
 #include "tab_supervisor.h"
-#include "tab_userlists.h"
 
 #include <QApplication>
 #include <QCheckBox>
@@ -36,7 +36,6 @@ GameSelector::GameSelector(AbstractClient *_client,
 {
     gameListView = new QTreeView;
     gameListModel = new GamesModel(_rooms, _gameTypes, this);
-    filteredGamesLabel = new QLabel;
     if (showFilters) {
         gameListProxyModel = new GamesProxyModel(this, tabSupervisor);
         gameListProxyModel->setSourceModel(gameListModel);
@@ -75,14 +74,16 @@ GameSelector::GameSelector(AbstractClient *_client,
     connect(filterButton, SIGNAL(clicked()), this, SLOT(actSetFilter()));
     clearFilterButton = new QPushButton;
     clearFilterButton->setIcon(QPixmap("theme:icons/clearsearch"));
-    clearFilterButton->setEnabled(true);
+    bool filtersSetToDefault = showFilters && gameListProxyModel->areFilterParametersSetToDefaults();
+    clearFilterButton->setEnabled(!filtersSetToDefault);
     connect(clearFilterButton, SIGNAL(clicked()), this, SLOT(actClearFilter()));
 
     if (room) {
         createButton = new QPushButton;
         connect(createButton, SIGNAL(clicked()), this, SLOT(actCreate()));
-    } else
-        createButton = 0;
+    } else {
+        createButton = nullptr;
+    }
     joinButton = new QPushButton;
     spectateButton = new QPushButton;
 
@@ -90,7 +91,6 @@ GameSelector::GameSelector(AbstractClient *_client,
     if (showFilters) {
         buttonLayout->addWidget(filterButton);
         buttonLayout->addWidget(clearFilterButton);
-        buttonLayout->addWidget(filteredGamesLabel);
     }
     buttonLayout->addStretch();
     if (room)
@@ -133,7 +133,7 @@ void GameSelector::processAddToListEvent(const Event_AddToList &event)
     if (event.list_name() == "ignore") {
         gameListProxyModel->refresh();
     }
-    setFilteredGamesLabel();
+    updateTitle();
 }
 
 void GameSelector::processRemoveFromListEvent(const Event_RemoveFromList &event)
@@ -141,7 +141,7 @@ void GameSelector::processRemoveFromListEvent(const Event_RemoveFromList &event)
     if (event.list_name() == "ignore") {
         gameListProxyModel->refresh();
     }
-    setFilteredGamesLabel();
+    updateTitle();
 }
 
 void GameSelector::actSetFilter()
@@ -151,19 +151,25 @@ void GameSelector::actSetFilter()
     if (!dlg.exec())
         return;
 
-    clearFilterButton->setEnabled(true);
-
     gameListProxyModel->setShowBuddiesOnlyGames(dlg.getShowBuddiesOnlyGames());
-    gameListProxyModel->setUnavailableGamesVisible(dlg.getUnavailableGamesVisible());
+    gameListProxyModel->setShowFullGames(dlg.getShowFullGames());
+    gameListProxyModel->setShowGamesThatStarted(dlg.getShowGamesThatStarted());
     gameListProxyModel->setShowPasswordProtectedGames(dlg.getShowPasswordProtectedGames());
     gameListProxyModel->setHideIgnoredUserGames(dlg.getHideIgnoredUserGames());
     gameListProxyModel->setGameNameFilter(dlg.getGameNameFilter());
     gameListProxyModel->setCreatorNameFilter(dlg.getCreatorNameFilter());
     gameListProxyModel->setGameTypeFilter(dlg.getGameTypeFilter());
     gameListProxyModel->setMaxPlayersFilter(dlg.getMaxPlayersFilterMin(), dlg.getMaxPlayersFilterMax());
+    gameListProxyModel->setMaxGameAge(dlg.getMaxGameAge());
+    gameListProxyModel->setShowOnlyIfSpectatorsCanWatch(dlg.getShowOnlyIfSpectatorsCanWatch());
+    gameListProxyModel->setShowSpectatorPasswordProtected(dlg.getShowSpectatorPasswordProtected());
+    gameListProxyModel->setShowOnlyIfSpectatorsCanChat(dlg.getShowOnlyIfSpectatorsCanChat());
+    gameListProxyModel->setShowOnlyIfSpectatorsCanSeeHands(dlg.getShowOnlyIfSpectatorsCanSeeHands());
     gameListProxyModel->saveFilterParameters(gameTypeMap);
 
-    setFilteredGamesLabel();
+    clearFilterButton->setEnabled(!gameListProxyModel->areFilterParametersSetToDefaults());
+
+    updateTitle();
 }
 
 void GameSelector::actClearFilter()
@@ -173,7 +179,7 @@ void GameSelector::actClearFilter()
     gameListProxyModel->resetFilterParameters();
     gameListProxyModel->saveFilterParameters(gameTypeMap);
 
-    setFilteredGamesLabel();
+    updateTitle();
 }
 
 void GameSelector::actCreate()
@@ -185,7 +191,7 @@ void GameSelector::actCreate()
 
     DlgCreateGame dlg(room, room->getGameTypes(), this);
     dlg.exec();
-    setFilteredGamesLabel();
+    updateTitle();
 }
 
 void GameSelector::checkResponse(const Response &response)
@@ -267,7 +273,6 @@ void GameSelector::actJoin()
 
 void GameSelector::retranslateUi()
 {
-    setTitle(tr("Games"));
     filterButton->setText(tr("&Filter games"));
     clearFilterButton->setText(tr("C&lear filter"));
     if (createButton)
@@ -275,13 +280,13 @@ void GameSelector::retranslateUi()
     joinButton->setText(tr("&Join"));
     spectateButton->setText(tr("J&oin as spectator"));
 
-    setFilteredGamesLabel();
+    updateTitle();
 }
 
 void GameSelector::processGameInfo(const ServerInfo_Game &info)
 {
     gameListModel->updateGameList(info);
-    setFilteredGamesLabel();
+    updateTitle();
 }
 
 void GameSelector::actSelectedGameChanged(const QModelIndex &current, const QModelIndex & /* previous */)
@@ -296,11 +301,13 @@ void GameSelector::actSelectedGameChanged(const QModelIndex &current, const QMod
     joinButton->setEnabled(game.player_count() < game.max_players() || overrideRestrictions);
 }
 
-void GameSelector::setFilteredGamesLabel()
+void GameSelector::updateTitle()
 {
     if (showFilters) {
         const int totalGames = gameListModel->rowCount();
         const int shownGames = totalGames - gameListProxyModel->getNumFilteredGames();
-        filteredGamesLabel->setText(tr("Games shown: %1 / %2").arg(shownGames).arg(totalGames));
+        setTitle(tr("Games shown: %1 / %2").arg(shownGames).arg(totalGames));
+    } else {
+        setTitle(tr("Games"));
     }
 }

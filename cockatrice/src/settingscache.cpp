@@ -6,9 +6,12 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QGlobalStatic>
 #include <QSettings>
 #include <QStandardPaths>
 #include <utility>
+
+Q_GLOBAL_STATIC(SettingsCache, settingsCache);
 
 QString SettingsCache::getDataPath()
 {
@@ -92,7 +95,8 @@ void SettingsCache::translateLegacySettings()
 
     // Game filters
     legacySetting.beginGroup("filter_games");
-    gameFilters().setUnavailableGamesVisible(legacySetting.value("unavailable_games_visible").toBool());
+    gameFilters().setShowFullGames(legacySetting.value("unavailable_games_visible").toBool());
+    gameFilters().setShowGamesThatStarted(legacySetting.value("unavailable_games_visible").toBool());
     gameFilters().setShowPasswordProtectedGames(legacySetting.value("show_password_protected_games").toBool());
     gameFilters().setGameNameFilter(legacySetting.value("game_name_filter").toString());
     gameFilters().setShowBuddiesOnlyGames(legacySetting.value("show_buddies_only_games").toBool());
@@ -200,7 +204,6 @@ SettingsCache::SettingsCache()
     } else {
         customPicsPath = getSafeConfigPath("paths/custompics", picsPath + "/CUSTOM/");
     }
-    // this has never been exposed as an user-configurable setting
     customCardDatabasePath = getSafeConfigPath("paths/customsets", dataPath + "/customsets/");
 
     cardDatabasePath = getSafeConfigFilePath("paths/carddatabase", dataPath + "/cards.xml");
@@ -382,6 +385,12 @@ void SettingsCache::setReplaysPath(const QString &_replaysPath)
 {
     replaysPath = _replaysPath;
     settings->setValue("paths/replays", replaysPath);
+}
+
+void SettingsCache::setCustomCardDatabasePath(const QString &_customCardDatabasePath)
+{
+    customCardDatabasePath = _customCardDatabasePath;
+    settings->setValue("paths/customsets", customCardDatabasePath);
 }
 
 void SettingsCache::setPicsPath(const QString &_picsPath)
@@ -966,4 +975,9 @@ void SettingsCache::setMaxFontSize(int _max)
 {
     maxFontSize = _max;
     settings->setValue("game/maxfontsize", maxFontSize);
+}
+
+SettingsCache &SettingsCache::instance()
+{
+    return *settingsCache;
 }

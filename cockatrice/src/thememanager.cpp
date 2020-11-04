@@ -19,15 +19,16 @@
 ThemeManager::ThemeManager(QObject *parent) : QObject(parent)
 {
     ensureThemeDirectoryExists();
-    connect(settingsCache, SIGNAL(themeChanged()), this, SLOT(themeChangedSlot()));
+    connect(&SettingsCache::instance(), SIGNAL(themeChanged()), this, SLOT(themeChangedSlot()));
     themeChangedSlot();
 }
 
 void ThemeManager::ensureThemeDirectoryExists()
 {
-    if (settingsCache->getThemeName().isEmpty() || !getAvailableThemes().contains(settingsCache->getThemeName())) {
+    if (SettingsCache::instance().getThemeName().isEmpty() ||
+        !getAvailableThemes().contains(SettingsCache::instance().getThemeName())) {
         qDebug() << "Theme name not set, setting default value";
-        settingsCache->setThemeName(DEFAULT_THEME_NAME);
+        SettingsCache::instance().setThemeName(DEFAULT_THEME_NAME);
     }
 }
 
@@ -37,7 +38,7 @@ QStringMap &ThemeManager::getAvailableThemes()
     availableThemes.clear();
 
     // load themes from user profile dir
-    dir.setPath(settingsCache->getDataPath() + "/themes");
+    dir.setPath(SettingsCache::instance().getDataPath() + "/themes");
 
     foreach (QString themeName, dir.entryList(QDir::AllDirs | QDir::NoDotAndDotDot, QDir::Name)) {
         if (!availableThemes.contains(themeName))
@@ -77,9 +78,23 @@ QBrush ThemeManager::loadBrush(QString fileName, QColor fallbackColor)
     return brush;
 }
 
+QBrush ThemeManager::loadExtraBrush(QString fileName, QBrush &fallbackBrush)
+{
+    QBrush brush;
+    QPixmap tmp = QPixmap("theme:zones/" + fileName);
+
+    if (tmp.isNull()) {
+        brush = fallbackBrush;
+    } else {
+        brush.setTexture(tmp);
+    }
+
+    return brush;
+}
+
 void ThemeManager::themeChangedSlot()
 {
-    QString themeName = settingsCache->getThemeName();
+    QString themeName = SettingsCache::instance().getThemeName();
     qDebug() << "Theme changed:" << themeName;
 
     QDir dir = getAvailableThemes().value(themeName);
@@ -102,13 +117,68 @@ void ThemeManager::themeChangedSlot()
     tableBgBrush = loadBrush(TABLEZONE_BG_NAME, QColor(70, 50, 100));
     playerBgBrush = loadBrush(PLAYERZONE_BG_NAME, QColor(200, 200, 200));
     stackBgBrush = loadBrush(STACKZONE_BG_NAME, QColor(113, 43, 43));
+    tableBgBrushesCache.clear();
+    stackBgBrushesCache.clear();
+    playerBgBrushesCache.clear();
+    handBgBrushesCache.clear();
 
     QPixmapCache::clear();
 
     emit themeChanged();
 }
 
-QBrush ThemeManager::getExtraTableBgBrush(QString extraNumber)
+QBrush ThemeManager::getExtraTableBgBrush(QString extraNumber, QBrush &fallbackBrush)
 {
-    return loadBrush(TABLEZONE_BG_NAME + extraNumber, QColor(70, 50, 100));
+    QBrush returnBrush;
+
+    if (!tableBgBrushesCache.contains(extraNumber.toInt())) {
+        returnBrush = loadExtraBrush(TABLEZONE_BG_NAME + extraNumber, fallbackBrush);
+        tableBgBrushesCache.insert(extraNumber.toInt(), returnBrush);
+    } else {
+        returnBrush = tableBgBrushesCache.value(extraNumber.toInt());
+    }
+
+    return returnBrush;
+}
+
+QBrush ThemeManager::getExtraStackBgBrush(QString extraNumber, QBrush &fallbackBrush)
+{
+    QBrush returnBrush;
+
+    if (!stackBgBrushesCache.contains(extraNumber.toInt())) {
+        returnBrush = loadExtraBrush(STACKZONE_BG_NAME + extraNumber, fallbackBrush);
+        stackBgBrushesCache.insert(extraNumber.toInt(), returnBrush);
+    } else {
+        returnBrush = stackBgBrushesCache.value(extraNumber.toInt());
+    }
+
+    return returnBrush;
+}
+
+QBrush ThemeManager::getExtraPlayerBgBrush(QString extraNumber, QBrush &fallbackBrush)
+{
+    QBrush returnBrush;
+
+    if (!playerBgBrushesCache.contains(extraNumber.toInt())) {
+        returnBrush = loadExtraBrush(PLAYERZONE_BG_NAME + extraNumber, fallbackBrush);
+        playerBgBrushesCache.insert(extraNumber.toInt(), returnBrush);
+    } else {
+        returnBrush = playerBgBrushesCache.value(extraNumber.toInt());
+    }
+
+    return returnBrush;
+}
+
+QBrush ThemeManager::getExtraHandBgBrush(QString extraNumber, QBrush &fallbackBrush)
+{
+    QBrush returnBrush;
+
+    if (!handBgBrushesCache.contains(extraNumber.toInt())) {
+        returnBrush = loadExtraBrush(HANDZONE_BG_NAME + extraNumber, fallbackBrush);
+        handBgBrushesCache.insert(extraNumber.toInt(), returnBrush);
+    } else {
+        returnBrush = handBgBrushesCache.value(extraNumber.toInt());
+    }
+
+    return returnBrush;
 }

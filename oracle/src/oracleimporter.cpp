@@ -146,23 +146,10 @@ CardInfoPtr OracleImporter::addCard(QString name,
                 (text.contains(name + " enters the battlefield tapped") &&
                  !text.contains(name + " enters the battlefield tapped unless"));
 
-    // detect mana generator artifacts
-    QStringList cardTextRows = text.split("\n");
-    bool mArtifact = false;
-    QString cardType = properties.value("type").toString();
-    if (cardType.endsWith("Artifact")) {
-        for (int i = 0; i < cardTextRows.size(); ++i) {
-            cardTextRows[i].remove(QRegularExpression(R"(\".*?\")"));
-            if (cardTextRows[i].contains("{T}") && cardTextRows[i].contains("to your mana pool")) {
-                mArtifact = true;
-            }
-        }
-    }
-
     // table row
     int tableRow = 1;
     QString mainCardType = properties.value("maintype").toString();
-    if ((mainCardType == "Land") || mArtifact)
+    if ((mainCardType == "Land"))
         tableRow = 0;
     else if ((mainCardType == "Sorcery") || (mainCardType == "Instant"))
         tableRow = 3;
@@ -216,7 +203,7 @@ int OracleImporter::importCardsFromSet(CardSetPtr currentSet, const QList<QVaria
                                                           {"rarity", "rarity"}};
 
     int numCards = 0;
-    QMap<QString, SplitCardPart> splitCards;
+    QMultiMap<QString, SplitCardPart> splitCards;
     QString ptSeparator("/");
     QVariantMap card;
     QString layout, name, text, colors, colorIdentity, maintype, power, toughness;
@@ -225,7 +212,7 @@ int OracleImporter::importCardsFromSet(CardSetPtr currentSet, const QList<QVaria
     QVariantHash properties;
     CardInfoPerSet setInfo;
     QList<CardRelation *> relatedCards;
-    static const QList<QString> specialNumChars = {"★", "s"};
+    static const QList<QString> specialNumChars = {"★", "s", "†"};
     QMap<QString, QVariant> specialPromoCards;
     QList<QString> allNameProps;
 
@@ -278,6 +265,9 @@ int OracleImporter::importCardsFromSet(CardSetPtr currentSet, const QList<QVaria
 
         if (skipSpecialCards) {
             // skip promo cards if it's not the only print
+            if (allNameProps.contains(name)) {
+                continue;
+            }
             if (getStringPropertyFromMap(card, "isPromo") == "true") {
                 specialPromoCards.insert(name, cardVar);
                 continue;
@@ -338,7 +328,7 @@ int OracleImporter::importCardsFromSet(CardSetPtr currentSet, const QList<QVaria
             // construct full card name
             name = additionalNames.join(QString(" // "));
             SplitCardPart split(index, text, properties, setInfo);
-            splitCards.insertMulti(name, split);
+            splitCards.insert(name, split);
         } else {
             // relations
             relatedCards.clear();
@@ -392,7 +382,7 @@ int OracleImporter::importCardsFromSet(CardSetPtr currentSet, const QList<QVaria
                     if (originalPropertyValue != thisCardPropertyValue) {
                         if (prop == "colors") {
                             properties.insert(prop, originalPropertyValue + thisCardPropertyValue);
-                        } else if (prop == "maintype" && layout == "adventure") {
+                        } else if (prop == "maintype") { // don't create maintypes with //es in them
                             properties.insert(prop, originalPropertyValue);
                         } else {
                             properties.insert(prop,

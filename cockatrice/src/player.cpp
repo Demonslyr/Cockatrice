@@ -83,7 +83,13 @@ void PlayerArea::updateBg()
 
 void PlayerArea::paint(QPainter *painter, const QStyleOptionGraphicsItem * /*option*/, QWidget * /*widget*/)
 {
-    painter->fillRect(bRect, themeManager->getPlayerBgBrush());
+    QBrush brush = themeManager->getPlayerBgBrush();
+
+    if (playerZoneId > 0) {
+        // If the extra image is not found, load the default one
+        brush = themeManager->getExtraPlayerBgBrush(QString::number(playerZoneId), brush);
+    }
+    painter->fillRect(boundingRect(), brush);
 }
 
 void PlayerArea::setSize(qreal width, qreal height)
@@ -92,17 +98,22 @@ void PlayerArea::setSize(qreal width, qreal height)
     bRect = QRectF(0, 0, width, height);
 }
 
+void PlayerArea::setPlayerZoneId(int _playerZoneId)
+{
+    playerZoneId = _playerZoneId;
+}
+
 Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, TabGame *_parent)
     : QObject(_parent), game(_parent), shortcutsActive(false), defaultNumberTopCards(1),
       defaultNumberTopCardsToPlaceBelow(1), lastTokenDestroy(true), lastTokenTableRow(0), id(_id), active(false),
-      local(_local), judge(_judge), mirrored(false), handVisible(false), conceded(false), dialogSemaphore(false),
-      deck(nullptr)
+      local(_local), judge(_judge), mirrored(false), handVisible(false), conceded(false), zoneId(0),
+      dialogSemaphore(false), deck(nullptr)
 {
     userInfo = new ServerInfo_User;
     userInfo->CopyFrom(info);
 
-    connect(settingsCache, SIGNAL(horizontalHandChanged()), this, SLOT(rearrangeZones()));
-    connect(settingsCache, SIGNAL(handJustificationChanged()), this, SLOT(rearrangeZones()));
+    connect(&SettingsCache::instance(), SIGNAL(horizontalHandChanged()), this, SLOT(rearrangeZones()));
+    connect(&SettingsCache::instance(), SIGNAL(handJustificationChanged()), this, SLOT(rearrangeZones()));
 
     playerArea = new PlayerArea(this);
 
@@ -483,7 +494,7 @@ Player::Player(const ServerInfo_User &info, int _id, bool _local, bool _judge, T
 
     rearrangeZones();
     retranslateUi();
-    connect(&settingsCache->shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
+    connect(&SettingsCache::instance().shortcuts(), SIGNAL(shortCutChanged()), this, SLOT(refreshShortcuts()));
     refreshShortcuts();
 }
 
@@ -585,7 +596,7 @@ void Player::playerListActionTriggered()
 void Player::rearrangeZones()
 {
     QPointF base = QPointF(CARD_HEIGHT + counterAreaWidth + 15, 0);
-    if (settingsCache->getHorizontalHand()) {
+    if (SettingsCache::instance().getHorizontalHand()) {
         if (mirrored) {
             if (hand->contentsKnown()) {
                 handVisible = true;
@@ -638,7 +649,7 @@ void Player::updateBoundingRect()
 {
     prepareGeometryChange();
     qreal width = CARD_HEIGHT + 15 + counterAreaWidth + stack->boundingRect().width();
-    if (settingsCache->getHorizontalHand()) {
+    if (SettingsCache::instance().getHorizontalHand()) {
         qreal handHeight = handVisible ? hand->boundingRect().height() : 0;
         bRect = QRectF(0, 0, width + table->boundingRect().width(), table->boundingRect().height() + handHeight);
     } else {
@@ -719,7 +730,7 @@ void Player::retranslateUi()
             counterIterator.next().value()->retranslateUi();
         }
 
-        aCardMenu->setText(tr("C&ard"));
+        aCardMenu->setText(tr("Selec&ted cards"));
 
         for (auto &allPlayersAction : allPlayersActions) {
             allPlayersAction->setText(tr("&All players"));
@@ -788,7 +799,7 @@ void Player::retranslateUi()
 void Player::setShortcutsActive()
 {
     shortcutsActive = true;
-    ShortcutsSettings &shortcuts = settingsCache->shortcuts();
+    ShortcutsSettings &shortcuts = SettingsCache::instance().shortcuts();
 
     aPlay->setShortcuts(shortcuts.getShortcut("Player/aPlay"));
     aTap->setShortcuts(shortcuts.getShortcut("Player/aTap"));
@@ -909,10 +920,10 @@ void Player::initSayMenu()
 {
     sayMenu->clear();
 
-    int count = settingsCache->messages().getCount();
+    int count = SettingsCache::instance().messages().getCount();
 
     for (int i = 0; i < count; ++i) {
-        auto *newAction = new QAction(settingsCache->messages().getMessageAt(i), this);
+        auto *newAction = new QAction(SettingsCache::instance().messages().getMessageAt(i), this);
         if (i <= 10) {
             newAction->setShortcut(QKeySequence("Ctrl+" + QString::number((i + 1) % 10)));
         }
@@ -1019,7 +1030,7 @@ void Player::actDrawCard()
 
 void Player::actMulligan()
 {
-    int startSize = settingsCache->getStartingHandSize();
+    int startSize = SettingsCache::instance().getStartingHandSize();
     int handSize = zones.value("hand")->getCards().size();
     int deckSize = zones.value("deck")->getCards().size() + handSize;
     bool ok;
@@ -1040,7 +1051,7 @@ void Player::actMulligan()
     }
     sendGameCommand(cmd);
     if (startSize != number) {
-        settingsCache->setStartingHandSize(number);
+        SettingsCache::instance().setStartingHandSize(number);
     }
 }
 
@@ -1439,7 +1450,7 @@ void Player::createCard(const CardItem *sourceCard, const QString &dbCardName, b
     }
 
     cmd.set_pt(cardInfo->getPowTough().toStdString());
-    if (settingsCache->getAnnotateTokens()) {
+    if (SettingsCache::instance().getAnnotateTokens()) {
         cmd.set_annotation(cardInfo->getText().toStdString());
     } else {
         cmd.set_annotation("");
@@ -2140,7 +2151,7 @@ void Player::playCard(CardItem *card, bool faceDown, bool tapped)
     }
 
     int tableRow = info->getTableRow();
-    bool playToStack = settingsCache->getPlayToStack();
+    bool playToStack = SettingsCache::instance().getPlayToStack();
     QString currentZone = card->getZone()->getName();
     if (currentZone == "stack" && tableRow == 3) {
         cmd.set_target_zone("grave");
@@ -3209,7 +3220,7 @@ void Player::addRelatedCardActions(const CardItem *card, QMenu *cardMenu)
     if (createRelatedCards) {
         if (shortcutsActive) {
             createRelatedCards->setShortcut(
-                settingsCache->shortcuts().getSingleShortcut("Player/aCreateRelatedTokens"));
+                SettingsCache::instance().shortcuts().getSingleShortcut("Player/aCreateRelatedTokens"));
         }
         connect(createRelatedCards, SIGNAL(triggered()), this, SLOT(actCreateAllRelatedCards()));
         cardMenu->addAction(createRelatedCards);
@@ -3239,7 +3250,7 @@ QString Player::getName() const
 qreal Player::getMinimumWidth() const
 {
     qreal result = table->getMinimumWidth() + CARD_HEIGHT + 15 + counterAreaWidth + stack->boundingRect().width();
-    if (!settingsCache->getHorizontalHand()) {
+    if (!SettingsCache::instance().getHorizontalHand()) {
         result += hand->boundingRect().width();
     }
     return result;
@@ -3263,6 +3274,12 @@ void Player::setConceded(bool _conceded)
     emit playerCountChanged();
 }
 
+void Player::setZoneId(int _zoneId)
+{
+    zoneId = _zoneId;
+    playerArea->setPlayerZoneId(_zoneId);
+}
+
 void Player::setMirrored(bool _mirrored)
 {
     if (mirrored != _mirrored) {
@@ -3275,7 +3292,7 @@ void Player::processSceneSizeChange(int newPlayerWidth)
 {
     // Extend table (and hand, if horizontal) to accommodate the new player width.
     qreal tableWidth = newPlayerWidth - CARD_HEIGHT - 15 - counterAreaWidth - stack->boundingRect().width();
-    if (!settingsCache->getHorizontalHand()) {
+    if (!SettingsCache::instance().getHorizontalHand()) {
         tableWidth -= hand->boundingRect().width();
     }
 
@@ -3292,7 +3309,7 @@ void Player::setLastToken(CardInfoPtr cardInfo)
     lastTokenName = cardInfo->getName();
     lastTokenColor = cardInfo->getColors().isEmpty() ? QString() : cardInfo->getColors().left(1).toLower();
     lastTokenPT = cardInfo->getPowTough();
-    lastTokenAnnotation = settingsCache->getAnnotateTokens() ? cardInfo->getText() : "";
+    lastTokenAnnotation = SettingsCache::instance().getAnnotateTokens() ? cardInfo->getText() : "";
     lastTokenTableRow = TableZone::clampValidTableRow(2 - cardInfo->getTableRow());
     lastTokenDestroy = true;
     aCreateAnotherToken->setText(tr("C&reate another %1 token").arg(lastTokenName));
